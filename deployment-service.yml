@@ -12,22 +12,25 @@ spec:
       labels:
         app: emailservice
     spec:
-      serviceAccountName: default
-      terminationGracePeriodSeconds: 5
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      containers:
-      - name: server
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
+      # Pod-Level Settings:
+      serviceAccountName: default # Specifies the ServiceAccount used by the Pod. The 'default' account is used in the namespace.
+      terminationGracePeriodSeconds: 5 # Time (in seconds) Kubernetes waits before forcefully terminating a Pod during shutdown.
+      securityContext:               # Security-related configurations for the entire Pod.
+        fsGroup: 1000                # File system group ID. Ensures shared volume-mounted files are accessible by this group.
+        runAsGroup: 1000             # Primary group ID for processes in the Pod.
+        runAsNonRoot: true           # Ensures processes run as a non-root user for enhanced security.
+        runAsUser: 1000              # User ID under which processes in the Pod will run.
+
+      # Container-Level Settings:
+      containers:                    # Defines the containers running within the Pod.
+      - name: server                 # Name of the container for identification.
+        securityContext:             # Security settings specific to the container.
+          allowPrivilegeEscalation: false # Prevents processes from gaining elevated privileges.
+          capabilities:              
             drop:
-              - ALL
-          privileged: false
-          readOnlyRootFilesystem: true
+              - ALL                  # Drops all Linux capabilities, limiting privileged operations.
+          privileged: false          # Ensures the container does not have privileged access to the host system.
+          readOnlyRootFilesystem: true # Mounts the root filesystem as read-only to prevent accidental or malicious changes.
         image: shaikmustafa/emailservice:latest
         ports:
         - containerPort: 8080
